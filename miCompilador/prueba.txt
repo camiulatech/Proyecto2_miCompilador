@@ -1,1 +1,10 @@
-cami = 3;
+print { }
+while = + - / *
+for 
+if 
+else
+elsei
+ifo
+whi
+
+32 
