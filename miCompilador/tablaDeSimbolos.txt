@@ -1,4 +1,1 @@
 Tabla de Simbolos:
-Identificador: elsei, Informacion: Linea: 6, Valor: 
-Identificador: ifo, Informacion: Linea: 7, Valor: 
-Identificador: whi, Informacion: Linea: 8, Valor: 

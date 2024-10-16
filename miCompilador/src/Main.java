@@ -5,10 +5,11 @@ public class Main {
         FaseLexica analizadorLexico = new FaseLexica();
 
         try {
+            System.out.println("FASE LEXICA:");
+
             // Inicio de Fase Lexica
             analizadorLexico.analizarArchivo(archivo);
 
-            System.out.println("FASE LEXICA:");
             analizadorLexico.imprimirTokens();
 
             // Guardar la tabla de símbolos en un archivo
