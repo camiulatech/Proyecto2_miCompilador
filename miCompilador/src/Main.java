@@ -9,16 +9,19 @@ public class Main {
 
             // Inicio de Fase Lexica
             analizadorLexico.analizarArchivo(archivo);
-
             analizadorLexico.imprimirTokens();
 
             // Guardar la tabla de símbolos en un archivo
             String archivoSalida = "tablaDeSimbolos.txt";
             analizadorLexico.getTablaSimbolos().guardarTablaSimbolos(archivoSalida);
             System.out.println("\n" + "Tabla de simbolos guardada en: " + archivoSalida);
-            
-        }
-        catch (Exception e) {
+
+            // Fase Sintactica
+            System.out.println("FASE SINTACTICA:");
+            FaseSintactica analizadorSintactico = new FaseSintactica(analizadorLexico.getTokens());
+            analizadorSintactico.analizar();  // Llama al análisis sintáctico
+
+        } catch (Exception e) {
             System.out.println("Error en el main: " + e.getMessage());
         }
     }
