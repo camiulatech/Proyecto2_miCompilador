@@ -18,6 +18,7 @@ public class Main {
 
             // Fase Sintactica
             System.out.println("FASE SINTACTICA:");
+            System.out.println(analizadorLexico.getTokens());
             FaseSintactica analizadorSintactico = new FaseSintactica(analizadorLexico.getTokens());
             analizadorSintactico.analizar();  // Llama al análisis sintáctico
 

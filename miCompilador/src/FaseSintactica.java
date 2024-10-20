@@ -1,271 +1,273 @@
-import java.util.ArrayList;
 import java.util.List;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class FaseSintactica {
     private List<Token> tokens;
     private int indiceActual;
     private int lineaActual;
     private boolean existe_error;
-    List<Integer> errores_tablaSimbolos = new ArrayList<>();
 
     public FaseSintactica(List<Token> tokens) {
         this.tokens = tokens;
-        this.indiceActual = 0; // indice en la lista de tokens
-        this.lineaActual = 0; // Linea actual para mensajes de error
-        this.existe_error = false; // Indica si hay errores
+        this.indiceActual = 0;
+        this.lineaActual = 0; // Comienza en 1 para contar las líneas de código
+        this.existe_error = false;
     }
 
-    // Método principal que inicia el análisis sintáctico
     public void analizar() throws Exception {
         try {
-            programa(); // Comienza con la regla principal de la gramática
+            while (indiceActual < tokens.size() && !existe_error) {
+                programa();
+            }
+        } catch (IndexOutOfBoundsException e) {
+            existe_error = true;
+            System.out.println("Error: Indice fuera de límites.");
         } catch (Exception e) {
             existe_error = true;
-            errores_tablaSimbolos.add(lineaActual + 1);
-            eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");
-            System.out.println("Error [Fase Sintactica]: La línea " + (lineaActual) + e.getMessage());
+            System.out.println("Error [Fase Sintactica]: La línea " + lineaActual + e.getMessage());
         }
 
         if (!existe_error) {
-            System.out.println("Se completó la fase sintáctica correctamente.");
+            System.out.println("Se logró completar la fase sintáctica correctamente.");
         }
     }
 
-    // programa -> declaraciones
+    // programa -> declaración programa
     private void programa() throws Exception {
-        declaraciones();
-    }
-
-    // declaraciones -> declaración declaraciones | ε
-    private void declaraciones() throws Exception {
-        while (indiceActual < tokens.size() && !tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
+        while (indiceActual < tokens.size()) {
+            lineaActual++;
             declaracion();
         }
     }
 
-    // declaración -> asignación | estructura_control | impresión
+    // declaración -> identificador = numero ; | control_flujo | impresion ;
     private void declaracion() throws Exception {
         if (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
-            asignacion();
-        } else if (tokens.get(indiceActual).getTipo().equals("IF") || tokens.get(indiceActual).getTipo().equals("WHILE") || tokens.get(indiceActual).getTipo().equals("FOR")) {
-            estructuraControl();
-        } else if (tokens.get(indiceActual).getTipo().equals("PRINT")) {
-            impresion();
-        } else {
-            throw new Exception(" se esperaba una declaración.");
-        }
-    }
-
-    // asignación -> identificador '=' expresión ';'
-    private void asignacion() throws Exception {
-        if (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
-            siguienteToken(); // toma el identificador
+            siguienteToken(); // Toma el identificador
             if (tokens.get(indiceActual).getTipo().equals("ASIGNACION")) {
-                siguienteToken(); // toma '='
-                expresion();
-                if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
-                    siguienteToken(); // toma ';'
+                siguienteToken(); // Toma el signo '='
+                if (tokens.get(indiceActual).getTipo().equals("NUMERO")) {
+                    siguienteToken(); // Toma el número
+                    if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
+                        siguienteToken(); // Toma ';'
+                    } else {
+                        throw new Exception(" se esperaba un punto y coma.");
+                    }
                 } else {
-                    throw new Exception(" se esperaba ';' después de la asignación.");
+                    throw new Exception(" se esperaba un número después de '='.");
                 }
+            } else if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
+                siguienteToken(); // Toma ';' sin asignación
             } else {
-                throw new Exception(" se esperaba '=' para la asignación.");
+                throw new Exception(" se esperaba un operador de asignación o punto y coma.");
             }
+        } else if (tokens.get(indiceActual).getTipo().equals("IF") || tokens.get(indiceActual).getTipo().equals("WHILE") || tokens.get(indiceActual).getTipo().equals("FOR")) {
+            control_flujo(); // Maneja control de flujo
+        } else if (tokens.get(indiceActual).getTipo().equals("PRINT")) {
+            impresion(); // Maneja impresión
+        } else {
+            throw new Exception(" declaración no válida.");
         }
     }
 
-    // estructura_control -> if | while | for
-    private void estructuraControl() throws Exception {
+    // control_flujo -> if_stmt | while_stmt | for_stmt
+    private void control_flujo() throws Exception {
         if (tokens.get(indiceActual).getTipo().equals("IF")) {
-            condicionalIf();
+            if_stmt();
         } else if (tokens.get(indiceActual).getTipo().equals("WHILE")) {
-            bucleWhile();
+            while_stmt();
         } else if (tokens.get(indiceActual).getTipo().equals("FOR")) {
-            bucleFor();
+            for_stmt();
+        } else {
+            throw new Exception(" control de flujo no válido.");
         }
     }
 
-    // if -> 'if' '(' expresión ')' '{' declaraciones '}'
-    private void condicionalIf() throws Exception {
-        siguienteToken(); // toma 'if'
+    private void if_stmt() throws Exception {
+        siguienteToken(); // Toma 'if'
         if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
-            siguienteToken(); // toma '('
-            expresion();
+            siguienteToken(); // Toma '('
+            expresion(); // Analiza expresión
             if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
-                siguienteToken(); // toma ')'
+                siguienteToken(); // Toma ')'
                 if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
-                    siguienteToken(); // toma '{'
+                    siguienteToken(); // Toma '{'
                     declaraciones();
                     if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
-                        siguienteToken(); // toma '}'
-                    } else {
-                        throw new Exception(" se esperaba '}' después del bloque de if.");
-                    }
-                } else {
-                    throw new Exception(" se esperaba '{' para el bloque de if.");
-                }
-            } else {
-                throw new Exception(" se esperaba ')' después de la condición.");
-            }
-        } else {
-            throw new Exception(" se esperaba '(' después de 'if'.");
-        }
-    }
-
-    // while -> 'while' '(' expresión ')' '{' declaraciones '}'
-    private void bucleWhile() throws Exception {
-        siguienteToken(); // toma 'while'
-        if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
-            siguienteToken(); // toma '('
-            expresion();
-            if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
-                siguienteToken(); // toma ')'
-                if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
-                    siguienteToken(); // toma '{'
-                    declaraciones();
-                    if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
-                        siguienteToken(); // toma '}'
-                    } else {
-                        throw new Exception(" se esperaba '}' después del bloque de while.");
-                    }
-                } else {
-                    throw new Exception(" se esperaba '{' para el bloque de while.");
-                }
-            } else {
-                throw new Exception(" se esperaba ')' después de la condición.");
-            }
-        } else {
-            throw new Exception(" se esperaba '(' después de 'while'.");
-        }
-    }
-
-    // for -> 'for' '(' asignación ';' expresión ';' asignación ')' '{' declaraciones '}'
-    private void bucleFor() throws Exception {
-        siguienteToken(); // toma 'for'
-        if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
-            siguienteToken(); // toma '('
-            asignacion();
-            if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
-                siguienteToken(); // toma ';'
-                expresion();
-                if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
-                    siguienteToken(); // toma ';'
-                    asignacion();
-                    if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
-                        siguienteToken(); // toma ')'
-                        if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
-                            siguienteToken(); // toma '{'
-                            declaraciones();
-                            if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
-                                siguienteToken(); // toma '}'
+                        siguienteToken(); // Toma '}'
+                        if (tokens.get(indiceActual).getTipo().equals("ELSE")) {
+                            siguienteToken(); // Toma 'else'
+                            if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
+                                siguienteToken(); // Toma '{'
+                                declaraciones();
+                                if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
+                                    siguienteToken(); // Toma '}'
+                                } else {
+                                    throw new Exception(" se esperaba '}'.");
+                                }
                             } else {
-                                throw new Exception(" se esperaba '}' después del bloque de for.");
+                                throw new Exception(" se esperaba '{' después de 'else'.");
                             }
-                        } else {
-                            throw new Exception(" se esperaba '{' para el bloque de for.");
                         }
                     } else {
-                        throw new Exception(" se esperaba ')' después de la expresión.");
+                        throw new Exception(" se esperaba '}'.");
                     }
                 } else {
-                    throw new Exception(" se esperaba ';' después de la expresión.");
+                    throw new Exception(" se esperaba '{' después de '('.");
                 }
             } else {
-                throw new Exception(" se esperaba ';' después de la asignación.");
+                throw new Exception(" se esperaba ')'.");
             }
-        } else {
-            throw new Exception(" se esperaba '(' después de 'for'.");
         }
     }
 
-    // impresión -> 'print' '(' expresión ')' ';'
-    private void impresion() throws Exception {
-        siguienteToken(); // toma 'print'
+    private void while_stmt() throws Exception {
+        siguienteToken(); // Toma 'while'
         if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
-            siguienteToken(); // toma '('
-            expresion();
+            siguienteToken(); // Toma '('
+            expresion(); // Analiza expresión
             if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
-                siguienteToken(); // toma ')'
-                if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
-                    siguienteToken(); // toma ';'
+                siguienteToken(); // Toma ')'
+                if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
+                    siguienteToken(); // Toma '{'
+                    declaraciones();
+                    if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
+                        siguienteToken(); // Toma '}'
+                    } else {
+                        throw new Exception(" se esperaba '}'.");
+                    }
                 } else {
-                    throw new Exception(" se esperaba ';' después de la impresión.");
+                    throw new Exception(" se esperaba '{' después de '('.");
                 }
             } else {
-                throw new Exception(" se esperaba ')' después de la expresión.");
+                throw new Exception(" se esperaba ')'.");
             }
-        } else {
-            throw new Exception(" se esperaba '(' después de 'print'.");
         }
     }
 
-    // expresión -> término { ('+' | '-') término }
+    private void for_stmt() throws Exception {
+        siguienteToken(); // Toma 'for'
+        if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
+            siguienteToken(); // Toma '('
+            expresion(); // Analiza expresión
+            if (tokens.get(indiceActual).getTipo().equals("PUNTO_Y_COMA")) {
+                siguienteToken(); // Toma ';'
+                expresion(); // Analiza expresión
+                if (tokens.get(indiceActual).getTipo().equals("PUNTO_Y_COMA")) {
+                    siguienteToken(); // Toma ';'
+                    expresion(); // Analiza expresión
+                    if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
+                        siguienteToken(); // Toma ')'
+                        if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
+                            siguienteToken(); // Toma '{'
+                            declaraciones();
+                            if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
+                                siguienteToken(); // Toma '}'
+                            } else {
+                                throw new Exception(" se esperaba '}'.");
+                            }
+                        } else {
+                            throw new Exception(" se esperaba '{' después de '('.");
+                        }
+                    } else {
+                        throw new Exception(" se esperaba ')'.");
+                    }
+                }
+            }
+        }
+    }
+
+    private void impresion() throws Exception {
+        siguienteToken(); // Toma 'print'
+        if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
+            siguienteToken(); // Toma '('
+            if (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
+                siguienteToken(); // Toma el identificador
+                if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
+                    siguienteToken(); // Toma ')'
+                    if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
+                        siguienteToken(); // Toma ';'
+                    } else {
+                        throw new Exception(" se esperaba un punto y coma.");
+                    }
+                } else {
+                    throw new Exception(" se esperaba ')'.");
+                }
+            } else {
+                throw new Exception(" se esperaba un identificador.");
+            }
+        } else {
+            throw new Exception(" se esperaba '('.");
+        }
+    }
+
+    // expresion -> identificador = numero | termino operador_aditivo termino
     private void expresion() throws Exception {
-        termino();
-        while (tokens.get(indiceActual).getTipo().equals("MAS") || tokens.get(indiceActual).getTipo().equals("MENOS")) {
-            siguienteToken(); // toma '+' o '-'
-            termino();
-        }
-    }
-
-    // término -> factor { ('*' | '/') factor }
-    private void termino() throws Exception {
-        factor();
-        while (tokens.get(indiceActual).getTipo().equals("MULTIPLICACION") || tokens.get(indiceActual).getTipo().equals("DIVISION")) {
-            siguienteToken(); // toma '*' o '/'
-            factor();
-        }
-    }
-
-    // factor -> número | identificador | '(' expresión ')'
-    private void factor() throws Exception {
-        if (tokens.get(indiceActual).getTipo().equals("NUMERO")) {
-            siguienteToken(); // toma un número
-        } else if (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
-            siguienteToken(); // toma un identificador
-        } else if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
-            siguienteToken(); // toma '('
-            expresion();
-            if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
-                siguienteToken(); // toma ')'
-            } else {
-                throw new Exception(" se esperaba ')' después de la expresión.");
+        if (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
+            siguienteToken(); // Toma el identificador
+            if (tokens.get(indiceActual).getTipo().equals("ASIGNACION")) {
+                siguienteToken(); // Toma '='
+                if (tokens.get(indiceActual).getTipo().equals("NUMERO")) {
+                    siguienteToken(); // Toma el número
+                } else {
+                    throw new Exception(" se esperaba un número.");
+                }
             }
         } else {
-            throw new Exception(" se esperaba un número, identificador o '('.");
+            termino(); // Analiza término
+            operador_aditivo();
+            termino(); // Analiza término
         }
     }
 
-    // Método para avanzar al siguiente token
-    private void siguienteToken() {
-        if (indiceActual < tokens.size() - 1) {
-            indiceActual++;
-            //lineaActual = tokens.get(indiceActual).getLinea();
-        }
+    // termino -> factor operador_multiplicativo factor
+    private void termino() throws Exception {
+        factor(); // Analiza factor
+        operador_multiplicativo();
+        factor(); // Analiza factor
     }
 
-    // Método para eliminar errores en la tabla de símbolos
-    private void eliminarErroresTablaSimbolos(String rutaArchivo) {
-        try (BufferedReader lector = new BufferedReader(new FileReader(rutaArchivo));
-             BufferedWriter escritor = new BufferedWriter(new FileWriter("tablaDeSimbolosA.txt"))) {
-
-            String linea;
-            int contadorLineas = 1;
-
-            while ((linea = lector.readLine()) != null) {
-                if (!errores_tablaSimbolos.contains(contadorLineas)) {
-                    escritor.write(linea);
-                    escritor.newLine();
-                }
-                contadorLineas++;
+    // factor -> identificador | numero | ( expresion )
+    private void factor() throws Exception {
+        if (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
+            siguienteToken(); // Toma el identificador
+        } else if (tokens.get(indiceActual).getTipo().equals("NUMERO")) {
+            siguienteToken(); // Toma el número
+        } else if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
+            siguienteToken(); // Toma '('
+            expresion(); // Analiza expresión
+            if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
+                siguienteToken(); // Toma ')'
+            } else {
+                throw new Exception(" se esperaba ')'.");
             }
-        } catch (IOException e) {
-            System.out.println("Error al depurar la tabla de símbolos: " + e.getMessage());
+        } else {
+            throw new Exception(" factor no válido.");
+        }
+    }
+
+    // operador_aditivo -> + | -
+    private void operador_aditivo() throws Exception {
+        if (tokens.get(indiceActual).getTipo().equals("SUMA") || tokens.get(indiceActual).getTipo().equals("RESTA")) {
+            siguienteToken(); // Toma el operador
+        }
+    }
+
+    // operador_multiplicativo -> * | /
+    private void operador_multiplicativo() throws Exception {
+        if (tokens.get(indiceActual).getTipo().equals("MULTIPLICACION") || tokens.get(indiceActual).getTipo().equals("DIVISION")) {
+            siguienteToken(); // Toma el operador
+        }
+    }
+
+    private void siguienteToken() {
+        if (indiceActual < tokens.size()) {
+            indiceActual++;
+        }
+    }
+
+    private void declaraciones() throws Exception {
+        while (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
+            declaracion();
         }
     }
 }
