@@ -84,41 +84,52 @@ public class FaseSintactica {
 
     private void if_stmt() throws Exception {
         siguienteToken(); // Toma 'if'
+        
         if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
             siguienteToken(); // Toma '('
-            expresion(); // Analiza expresión
+            expresion(); // Analiza la expresión
+            
             if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
                 siguienteToken(); // Toma ')'
                 if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
                     siguienteToken(); // Toma '{'
-                    declaraciones();
+                    declaraciones(); // Analiza las declaraciones dentro del if
+                    System.out.println( "IF" + tokens.get(indiceActual));
                     if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
                         siguienteToken(); // Toma '}'
-                        if (tokens.get(indiceActual).getTipo().equals("ELSE")) {
-                            siguienteToken(); // Toma 'else'
-                            if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
-                                siguienteToken(); // Toma '{'
-                                declaraciones();
-                                if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
-                                    siguienteToken(); // Toma '}'
-                                } else {
-                                    throw new Exception(" se esperaba '}'.");
-                                }
-                            } else {
-                                throw new Exception(" se esperaba '{' después de 'else'.");
-                            }
-                        }
+                        manejarElse(); // Maneja el bloque else si existe
                     } else {
-                        throw new Exception(" se esperaba '}'.");
+                        throw new Exception(" se esperaba '}' en el bloque if.");
                     }
                 } else {
-                    throw new Exception(" se esperaba '{' después de '('.");
+                    throw new Exception(" se esperaba '{' después de '(' en el if.");
                 }
             } else {
-                throw new Exception(" se esperaba ')'.");
+                throw new Exception(" se esperaba ')' en la condición del if.");
+            }
+        } else {
+            throw new Exception(" se esperaba '(' después de 'if'.");
+        }
+    }
+    
+    private void manejarElse() throws Exception {
+        if (tokens.get(indiceActual).getTipo().equals("ELSE")) {
+            siguienteToken(); // Toma 'else'
+            if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
+                siguienteToken(); // Toma '{'
+                declaraciones(); // Analiza las declaraciones dentro del else
+                if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
+                    siguienteToken(); // Toma '}'
+                } else {
+                    throw new Exception(" se esperaba '}' en el bloque else.");
+                }
+            } else {
+                throw new Exception(" se esperaba '{' después de 'else'.");
             }
         }
     }
+    
+    
 
     private void while_stmt() throws Exception {
         siguienteToken(); // Toma 'while'
@@ -266,8 +277,14 @@ public class FaseSintactica {
     }
 
     private void declaraciones() throws Exception {
-        while (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
-            declaracion();
+        while (indiceActual < tokens.size() && 
+               (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR") ||
+                tokens.get(indiceActual).getTipo().equals("PRINT") ||
+                tokens.get(indiceActual).getTipo().equals("IF") ||
+                tokens.get(indiceActual).getTipo().equals("WHILE") ||
+                tokens.get(indiceActual).getTipo().equals("FOR"))) {
+            declaracion(); // Llama a declaración para manejar múltiples declaraciones
         }
     }
+    
 }

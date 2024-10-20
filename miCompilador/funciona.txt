@@ -1,0 +1,7 @@
+a = 1;
+print(a);
+
+if_stmt → if ( expresion ) { declaraciones } if_stmt´ 
+ 
+
+if_stmt´ -> else{ declaraciones }; | cadena vacia

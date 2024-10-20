@@ -141,12 +141,12 @@ public class FaseLexica {
                 tokens.add(new Token(";", "PUNTO_COMA"));
                 i++;
                 continue;
-            } else if (actual == '{') {
-                tokens.add(new Token("{", "LLAVE_DER"));
+            } else if (actual == '}') {
+                tokens.add(new Token("}", "LLAVE_DER"));
                 i++;
                 continue;
-            } else if (actual == '}') {
-                tokens.add(new Token("}", "LLAVE_IZQ"));
+            } else if (actual == '{') {
+                tokens.add(new Token("{", "LLAVE_IZQ"));
                 i++;
                 continue;
             }
