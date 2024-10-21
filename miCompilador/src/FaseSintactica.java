@@ -84,20 +84,26 @@ public class FaseSintactica {
 
     private void if_stmt() throws Exception {
         siguienteToken(); // Toma 'if'
-        
+    
         if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
             siguienteToken(); // Toma '('
             expresion(); // Analiza la expresión
-            
+    
             if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
                 siguienteToken(); // Toma ')'
+                
                 if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
                     siguienteToken(); // Toma '{'
                     declaraciones(); // Analiza las declaraciones dentro del if
-                    System.out.println( "IF" + tokens.get(indiceActual));
+                    System.out.println("IF" + tokens.get(indiceActual));
+    
                     if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
                         siguienteToken(); // Toma '}'
-                        manejarElse(); // Maneja el bloque else si existe
+                        
+                        // Verifica si hay más tokens antes de intentar avanzar
+                        if (indiceActual < tokens.size() && tokens.get(indiceActual).getTipo().equals("ELSE")) {
+                            manejarElse(); // Maneja el bloque else si existe
+                        }
                     } else {
                         throw new Exception(" se esperaba '}' en el bloque if.");
                     }
@@ -112,6 +118,7 @@ public class FaseSintactica {
         }
     }
     
+    // Esta funcion es como la factorizacion del if
     private void manejarElse() throws Exception {
         if (tokens.get(indiceActual).getTipo().equals("ELSE")) {
             siguienteToken(); // Toma 'else'

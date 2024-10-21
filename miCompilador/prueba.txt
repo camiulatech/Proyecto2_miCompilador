@@ -1,1 +1,6 @@
-if(x = 2){ print(x); }
+if(cami = 2){  
+    print(cami); 
+}
+else{
+    print(hola);
+}
