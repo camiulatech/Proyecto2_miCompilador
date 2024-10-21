@@ -1,5 +1,3 @@
-while(x=2){ 
-    print(cami);
-};
-
-x = 3;
+cami = 3;
+if(cami = 3){ print(cami); };
+x = 5;

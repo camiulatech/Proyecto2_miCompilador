@@ -12,17 +12,25 @@ if(cami = 2){
     print(cami); 
 }
 else{
-    print(hola);
+    print(ulate);
 };
 
 while(x=2){ 
     print(cami);
 };
 
+// si se acomoda asi da la linea de errores bien
+cami = 3;
+while(x=2){ print(cami); };
+x = ;
 
-// Pendientes
+cami = 3;
+if(cami = 3){ print(cami) };
+x = 5;
 
-1. Arreglar tabla de Simbolos --- validar antes del identificador venga PUNTO COMA?
+// PENDIENTES
+
+1. Arreglar tabla de Simbolos --- validar antes del identificador venga PUNTO COMA? CHECK
 2. ver lo error en la linea tal en fase sintactica
 3. revisar archivo de tabla de simbolos
 
