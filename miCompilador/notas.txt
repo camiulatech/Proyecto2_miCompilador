@@ -38,6 +38,8 @@ if(x = 2){ print(cami); } else{ print(cami); };
 4. que pasa si dos identificadores se llaman igual
 5. error cuando el punto y coma es el ultimo es lo que falla al final, dice que se sale del limite cami = 3
 
+// NO ENTIENDO
+creo que lo del for esta malo pq no tenemos ni > ni < 
 
 // Factorizar
 if_stmt → if ( expresion ) { declaraciones } if_stmt´  
