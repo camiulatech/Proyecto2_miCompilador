@@ -36,6 +36,7 @@ if(x = 2){ print(cami); } else{ print(cami); };
 2. ver lo error en la linea tal en fase sintactica (depende como se acomode)
 3. revisar archivo de tabla de simbolos 
 4. que pasa si dos identificadores se llaman igual
+5. error cuando el punto y coma es el ultimo es lo que falla al final, dice que se sale del limite cami = 3
 
 
 // Factorizar

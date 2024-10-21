@@ -1,3 +1,1 @@
 Tabla de Simbolos:
-Identificador: cami, Informacion: Linea: 1, Valor: 2
-Identificador: camila, Informacion: Linea: 3, Valor: 4

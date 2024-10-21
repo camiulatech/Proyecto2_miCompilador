@@ -1,3 +1,1 @@
-cami = 2;
-while(x = ){ print(cami);};
-camila = 4;
+cami = 2

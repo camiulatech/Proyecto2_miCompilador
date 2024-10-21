@@ -28,14 +28,14 @@ public class FaseSintactica {
             System.out.println("Error [Fase Sintactica]: La línea " + lineaActual + "Indice fuera de límites.");
             if(eliminar){
                 erroresTablaSimbolos.add(lineaActual+1);
-                //eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");
+                eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");
             }
 
         } catch (Exception e) {
             existe_error = true;
             if(eliminar){
                 erroresTablaSimbolos.add(lineaActual+1);
-                //eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");
+                eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");
             }
             System.out.println("Error [Fase Sintactica]: La línea " + lineaActual + e.getMessage());
         }
