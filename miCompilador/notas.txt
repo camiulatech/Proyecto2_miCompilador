@@ -1,21 +1,33 @@
+// Pruebas que funcionan
+
 a = 1;
+
 print(a);
+
+if(cami = 2){  
+    print(cami); 
+}; // El profe no dice pero aqui creo que tambien hay que poner ; en todo caso es borrar dos lineas
 
 if(cami = 2){  
     print(cami); 
 }
 else{
     print(hola);
-}
+};
 
+while(x=2){ 
+    print(cami);
+};
 
-if_stmt → if ( expresion ) { declaraciones } if_stmt´ 
- 
-
-if_stmt´ -> else{ declaraciones }; | cadena vacia
 
 // Pendientes
 
 1. Arreglar tabla de Simbolos --- validar antes del identificador venga PUNTO COMA?
 2. ver lo error en la linea tal en fase sintactica
 3. revisar archivo de tabla de simbolos
+
+
+// Factorizar
+if_stmt → if ( expresion ) { declaraciones } if_stmt´  
+
+if_stmt´ -> else{ declaraciones }; | cadena vacia

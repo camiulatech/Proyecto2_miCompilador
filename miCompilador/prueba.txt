@@ -1,6 +1,5 @@
-if(cami = 2){  
-    print(cami); 
-}
-else{
-    print(hola);
-}
+while(x=2){ 
+    print(cami);
+};
+
+x = 3;

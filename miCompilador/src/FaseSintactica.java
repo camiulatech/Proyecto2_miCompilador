@@ -83,6 +83,7 @@ public class FaseSintactica {
     }
 
     private void if_stmt() throws Exception {
+        boolean validacion_else = false;
         siguienteToken(); // Toma 'if'
     
         if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
@@ -91,19 +92,28 @@ public class FaseSintactica {
     
             if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
                 siguienteToken(); // Toma ')'
-                
+    
                 if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
                     siguienteToken(); // Toma '{'
                     declaraciones(); // Analiza las declaraciones dentro del if
-                    System.out.println("IF" + tokens.get(indiceActual));
     
                     if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
                         siguienteToken(); // Toma '}'
-                        
-                        // Verifica si hay más tokens antes de intentar avanzar
+    
+                        // Verificar si hay un bloque else
                         if (indiceActual < tokens.size() && tokens.get(indiceActual).getTipo().equals("ELSE")) {
+                            validacion_else = true;
                             manejarElse(); // Maneja el bloque else si existe
                         }
+    
+                        // Después del bloque if o else, debe haber un punto y coma
+                        if (indiceActual < tokens.size() && !tokens.get(indiceActual).getTipo().equals("PUNTO_COMA") && !validacion_else) {
+                            throw new Exception(" se esperaba ';' después del bloque if");
+                        } 
+                        if (indiceActual < tokens.size() && tokens.get(indiceActual).getTipo().equals("PUNTO_COMA") && !validacion_else) {
+                            siguienteToken();
+                        } 
+
                     } else {
                         throw new Exception(" se esperaba '}' en el bloque if.");
                     }
@@ -118,59 +128,79 @@ public class FaseSintactica {
         }
     }
     
-    // Esta funcion es como la factorizacion del if
     private void manejarElse() throws Exception {
-        if (tokens.get(indiceActual).getTipo().equals("ELSE")) {
-            siguienteToken(); // Toma 'else'
-            if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
-                siguienteToken(); // Toma '{'
-                declaraciones(); // Analiza las declaraciones dentro del else
-                if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
-                    siguienteToken(); // Toma '}'
+        siguienteToken(); // Toma 'else'
+    
+        if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
+            siguienteToken(); // Toma '{'
+            declaraciones(); // Analiza las declaraciones dentro del else
+    
+            if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
+                siguienteToken(); // Toma '}'
+    
+                System.out.println(tokens.get(indiceActual));
+                if (indiceActual < tokens.size() && tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
+                    siguienteToken(); // Toma ';'
                 } else {
-                    throw new Exception(" se esperaba '}' en el bloque else.");
+                    throw new Exception(" se esperaba ';' después del bloque else ELSE.");
                 }
+
             } else {
-                throw new Exception(" se esperaba '{' después de 'else'.");
+                throw new Exception(" se esperaba '}' en el bloque else.");
             }
+        } else {
+            throw new Exception(" se esperaba '{' después de 'else'.");
         }
     }
-    
     
 
     private void while_stmt() throws Exception {
         siguienteToken(); // Toma 'while'
+    
         if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
             siguienteToken(); // Toma '('
             expresion(); // Analiza expresión
+    
             if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
                 siguienteToken(); // Toma ')'
+    
                 if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
                     siguienteToken(); // Toma '{'
-                    declaraciones();
+                    declaraciones(); // Analiza las declaraciones dentro del while
+    
                     if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
                         siguienteToken(); // Toma '}'
+    
+                        // Verificación del punto y coma después del bloque while
+                        if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
+                            siguienteToken(); // Toma ';'
+                        } else {
+                            throw new Exception(" se esperaba ';' después del bloque while.");
+                        }
                     } else {
-                        throw new Exception(" se esperaba '}'.");
+                        throw new Exception(" se esperaba '}' después del bloque while.");
                     }
                 } else {
-                    throw new Exception(" se esperaba '{' después de '('.");
+                    throw new Exception(" se esperaba '{' después de la condición del while.");
                 }
             } else {
-                throw new Exception(" se esperaba ')'.");
+                throw new Exception(" se esperaba ')' después de la condición del while.");
             }
+        } else {
+            throw new Exception(" se esperaba '(' después de 'while'.");
         }
     }
+    
 
     private void for_stmt() throws Exception {
         siguienteToken(); // Toma 'for'
         if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
             siguienteToken(); // Toma '('
             expresion(); // Analiza expresión
-            if (tokens.get(indiceActual).getTipo().equals("PUNTO_Y_COMA")) {
+            if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
                 siguienteToken(); // Toma ';'
                 expresion(); // Analiza expresión
-                if (tokens.get(indiceActual).getTipo().equals("PUNTO_Y_COMA")) {
+                if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
                     siguienteToken(); // Toma ';'
                     expresion(); // Analiza expresión
                     if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
