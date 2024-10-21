@@ -28,6 +28,8 @@ cami = 3;
 if(cami = 3){ print(cami) };
 x = 5;
 
+if(x = 2){ print(cami); } else{ print(cami); };
+
 // PENDIENTES
 
 1. Arreglar tabla de Simbolos --- validar antes del identificador venga PUNTO COMA? CHECK

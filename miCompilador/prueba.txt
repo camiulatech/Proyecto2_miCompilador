@@ -1,3 +1,0 @@
-cami = 3;
-if(cami = 3){ print(cami); };
-x = 5;
