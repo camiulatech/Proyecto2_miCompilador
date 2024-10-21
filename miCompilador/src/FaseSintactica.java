@@ -1,10 +1,13 @@
+import java.util.ArrayList;
 import java.util.List;
+import java.io.*;
 
 public class FaseSintactica {
     private List<Token> tokens;
     private int indiceActual;
     private int lineaActual;
     private boolean existe_error;
+    private List<Integer> erroresTablaSimbolos = new ArrayList<>();
 
     public FaseSintactica(List<Token> tokens) {
         this.tokens = tokens;
@@ -21,8 +24,13 @@ public class FaseSintactica {
         } catch (IndexOutOfBoundsException e) {
             existe_error = true;
             System.out.println("Error: Indice fuera de límites.");
+            erroresTablaSimbolos.add(lineaActual+1);
+            eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");
+
         } catch (Exception e) {
             existe_error = true;
+            erroresTablaSimbolos.add(lineaActual+1);
+            eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");
             System.out.println("Error [Fase Sintactica]: La línea " + lineaActual + e.getMessage());
         }
 
@@ -321,6 +329,29 @@ public class FaseSintactica {
                 tokens.get(indiceActual).getTipo().equals("WHILE") ||
                 tokens.get(indiceActual).getTipo().equals("FOR"))) {
             declaracion(); // Llama a declaración para manejar múltiples declaraciones
+        }
+    }
+
+    private void eliminarErroresTablaSimbolos(String archivoTablaSimbolos) throws IOException {
+        List<String> lineasValidas = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(archivoTablaSimbolos))) {
+            String linea;
+            int numeroLinea = 1;
+
+            while ((linea = br.readLine()) != null) {
+                if (!erroresTablaSimbolos.contains(numeroLinea)) {
+                    lineasValidas.add(linea);
+                }
+                numeroLinea++;
+            }
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(archivoTablaSimbolos))) {
+            for (String linea : lineasValidas) {
+                bw.write(linea);
+                bw.newLine();
+            }
         }
     }
     

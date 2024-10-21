@@ -1,2 +1,2 @@
 Tabla de Simbolos:
-Identificador: x, Informacion: Linea: 1, Valor: 
+Identificador: x, Informacion: Linea: 1, Valor: 2
