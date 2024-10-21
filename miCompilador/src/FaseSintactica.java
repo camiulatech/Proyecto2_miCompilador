@@ -25,7 +25,7 @@ public class FaseSintactica {
             }
         } catch (IndexOutOfBoundsException e) {
             existe_error = true;
-            System.out.println("Error [Fase Sintactica]: La línea " + lineaActual + "Indice fuera de límites.");
+            System.out.println("Error [Fase Sintactica]: La linea " + lineaActual + " contiene un error en su gramatica, falta token ;");
             if(eliminar){
                 erroresTablaSimbolos.add(lineaActual+1);
                 eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");

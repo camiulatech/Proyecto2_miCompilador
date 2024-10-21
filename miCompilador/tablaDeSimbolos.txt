@@ -1,1 +1,2 @@
 Tabla de Simbolos:
+Identificador: c, Informacion: Linea: 1, Valor: 2
