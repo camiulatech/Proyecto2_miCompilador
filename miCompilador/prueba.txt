@@ -1,2 +1,3 @@
-x = 2;
-y = 3 + 3
+cami = 2;
+while(x = ){ print(cami);};
+camila = 4;

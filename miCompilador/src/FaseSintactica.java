@@ -8,12 +8,14 @@ public class FaseSintactica {
     private int lineaActual;
     private boolean existe_error;
     private List<Integer> erroresTablaSimbolos = new ArrayList<>();
+    private boolean eliminar;
 
     public FaseSintactica(List<Token> tokens) {
         this.tokens = tokens;
         this.indiceActual = 0;
         this.lineaActual = 0; // Comienza en 1 para contar las líneas de código
         this.existe_error = false;
+        this.eliminar = true;
     }
 
     public void analizar() throws Exception {
@@ -23,14 +25,18 @@ public class FaseSintactica {
             }
         } catch (IndexOutOfBoundsException e) {
             existe_error = true;
-            System.out.println("Error: Indice fuera de límites.");
-            erroresTablaSimbolos.add(lineaActual+1);
-            eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");
+            System.out.println("Error [Fase Sintactica]: La línea " + lineaActual + "Indice fuera de límites.");
+            if(eliminar){
+                erroresTablaSimbolos.add(lineaActual+1);
+                //eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");
+            }
 
         } catch (Exception e) {
             existe_error = true;
-            erroresTablaSimbolos.add(lineaActual+1);
-            eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");
+            if(eliminar){
+                erroresTablaSimbolos.add(lineaActual+1);
+                //eliminarErroresTablaSimbolos("tablaDeSimbolos.txt");
+            }
             System.out.println("Error [Fase Sintactica]: La línea " + lineaActual + e.getMessage());
         }
 
@@ -79,6 +85,7 @@ public class FaseSintactica {
 
     // control_flujo -> if_stmt | while_stmt | for_stmt
     private void control_flujo() throws Exception {
+        eliminar = false;
         if (tokens.get(indiceActual).getTipo().equals("IF")) {
             if_stmt();
         } else if (tokens.get(indiceActual).getTipo().equals("WHILE")) {
