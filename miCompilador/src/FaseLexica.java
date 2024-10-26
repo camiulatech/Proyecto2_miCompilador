@@ -114,6 +114,42 @@ public class FaseLexica {
                 continue;
             }
 
+            // Detección de operadores relacionales
+        if (actual == '<') {
+            if (i + 1 < caracteres.length && caracteres[i + 1] == '=') {
+                tokens.add(new Token("<=", "MENOR_IGUAL"));
+                i += 2; // Saltar el siguiente carácter '='
+            } else if (i + 1 < caracteres.length && caracteres[i + 1] == '>') {
+                tokens.add(new Token("<>", "DIFERENTE"));
+                i += 2; // Saltar el siguiente carácter '>'
+            } else {
+                tokens.add(new Token("<", "MENOR"));
+                i++;
+            }
+            esPrimeroEnLinea = false;
+            continue;
+        } else if (actual == '>') {
+            if (i + 1 < caracteres.length && caracteres[i + 1] == '=') {
+                tokens.add(new Token(">=", "MAYOR_IGUAL"));
+                i += 2; // Saltar el siguiente carácter '='
+            } else {
+                tokens.add(new Token(">", "MAYOR"));
+                i++;
+            }
+            esPrimeroEnLinea = false;
+            continue;
+        } else if (actual == '=') {
+            if (i + 1 < caracteres.length && caracteres[i + 1] == '=') {
+                tokens.add(new Token("==", "IGUALDAD"));
+                i += 2; // Saltar el siguiente carácter '='
+            } else {
+                tokens.add(new Token("=", "ASIGNACION"));
+                i++;
+            }
+            esPrimeroEnLinea = false;
+            continue;
+        }
+
             if (actual == '=') {
                 tokens.add(new Token("=", "ASIGNACION"));
                 i++;
