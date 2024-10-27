@@ -9,6 +9,7 @@ public class FaseSintactica {
     private boolean existe_error;
     private List<Integer> erroresTablaSimbolos = new ArrayList<>();
     private boolean eliminar;
+    private boolean llave_der;
 
     public FaseSintactica(List<Token> tokens) {
         this.tokens = tokens;
@@ -54,8 +55,9 @@ public class FaseSintactica {
     private void declaracion() throws Exception {
         // Identificamos el tipo de declaración basado en el primer token
         String tipoToken = tokens.get(indiceActual).getTipo();
+        System.out.println(tipoToken);
 
-        if (tipoToken.equals("IDENTIFICADOR") || tipoToken.equals("NUMERO") || tipoToken.equals("PARENTESIS_ABIERTO") || tipoToken.equals("OP_MENOS")) {
+        if (tipoToken.equals("IDENTIFICADOR") || tipoToken.equals("NUMERO") || tipoToken.equals("PARENTESIS_IZQ") || tipoToken.equals("RESTA")) {
             // Si es un identificador, número, paréntesis o un operador menos, tratamos la declaración como una expresión
             expresion();
         } 
@@ -67,8 +69,12 @@ public class FaseSintactica {
             // Impresión: print
             impresion();
         } 
+        else if(llave_der == true && tipoToken.equals("LLAVE_DER")){
+            llave_der = false;
+            verificarPuntoComaDespuesDeLlave();
+        }
         else {
-            throw new Exception("Declaración no válida en la línea " + lineaActual);
+            throw new Exception("PRUEBA Declaración no válida en la línea " + lineaActual);
         }
     }
 
@@ -110,25 +116,21 @@ public class FaseSintactica {
                             manejarElse(); // Maneja el bloque else si existe
                         }
     
-                        // Después del bloque if o else, debe haber un punto y coma
-                        if (indiceActual < tokens.size() && !tokens.get(indiceActual).getTipo().equals("PUNTO_COMA") && !validacion_else) {
-                            throw new Exception(" se esperaba ';' después del bloque if");
-                        } 
+                        // Solo verificamos el punto y coma después de manejar 'else' (si existe)
                         if (indiceActual < tokens.size() && tokens.get(indiceActual).getTipo().equals("PUNTO_COMA") && !validacion_else) {
-                            siguienteToken();
-                        } 
-
+                            siguienteToken(); // Toma ';' después del bloque if
+                        }
                     } else {
-                        throw new Exception(" se esperaba '}' en el bloque if.");
+                        throw new Exception("Se esperaba '}' en el bloque if.");
                     }
                 } else {
-                    throw new Exception(" se esperaba '{' después de '(' en el if.");
+                    throw new Exception("Se esperaba '{' después de '(' en el if.");
                 }
             } else {
-                throw new Exception(" se esperaba ')' en la condición del if.");
+                throw new Exception("Se esperaba ')' en la condición del if.");
             }
         } else {
-            throw new Exception(" se esperaba '(' después de 'if'.");
+            throw new Exception("Se esperaba '(' después de 'if'.");
         }
     }
     
@@ -142,18 +144,16 @@ public class FaseSintactica {
             if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
                 siguienteToken(); // Toma '}'
     
-                System.out.println(tokens.get(indiceActual));
                 if (indiceActual < tokens.size() && tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
-                    siguienteToken(); // Toma ';'
+                    siguienteToken(); // Toma ';' después del bloque else
                 } else {
-                    throw new Exception(" se esperaba ';' después del bloque else ELSE.");
+                    throw new Exception("Se esperaba ';' después del bloque else.");
                 }
-
             } else {
-                throw new Exception(" se esperaba '}' en el bloque else.");
+                throw new Exception("Se esperaba '}' en el bloque else.");
             }
         } else {
-            throw new Exception(" se esperaba '{' después de 'else'.");
+            throw new Exception("Se esperaba '{' después de 'else'.");
         }
     }
     
@@ -169,8 +169,12 @@ public class FaseSintactica {
                 siguienteToken(); // Toma ')'
     
                 if (tokens.get(indiceActual).getTipo().equals("LLAVE_IZQ")) {
+                    llave_der = true;
                     siguienteToken(); // Toma '{'
                     declaraciones(); // Analiza las declaraciones dentro del while
+                    
+
+                    /*  ------------------------------------------------
     
                     if (tokens.get(indiceActual).getTipo().equals("LLAVE_DER")) {
                         siguienteToken(); // Toma '}'
@@ -184,6 +188,8 @@ public class FaseSintactica {
                     } else {
                         throw new Exception(" se esperaba '}' después del bloque while.");
                     }
+
+                    */
                 } else {
                     throw new Exception(" se esperaba '{' después de la condición del while.");
                 }
@@ -236,11 +242,6 @@ public class FaseSintactica {
                 siguienteToken(); // Toma el identificador
                 if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
                     siguienteToken(); // Toma ')'
-                    if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
-                        siguienteToken(); // Toma ';'
-                    } else {
-                        throw new Exception(" se esperaba un punto y coma.");
-                    }
                 } else {
                     throw new Exception(" se esperaba ')'.");
                 }
@@ -257,6 +258,7 @@ public class FaseSintactica {
     //              | expresion operador_multiplicativo expresion
     //              | expresion operador_relacional expresion
     //              | - expresion
+    
     private void expresion() throws Exception {
         if (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
             siguienteToken(); // Toma el identificador
@@ -317,6 +319,14 @@ public class FaseSintactica {
     }
         */
 
+    private void verificarPuntoComaDespuesDeLlave() throws Exception {
+        if (indiceActual < tokens.size() && tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
+            siguienteToken(); // Toma ';' después del bloque
+        } else {
+            throw new Exception("Se esperaba ';' después del bloque en la línea " + lineaActual);            }
+        }
+        
+
     private void siguienteToken() {
         if (indiceActual < tokens.size()) {
             indiceActual++;
@@ -329,7 +339,6 @@ public class FaseSintactica {
         while (indiceActual < tokens.size()) {
             declaracion(); // Analiza la declaración actual
             
-            System.out.println(tokens.get(indiceActual).getTipo());
             // Después de cada declaración, se espera un punto y coma
             if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
                 siguienteToken(); // Toma el punto y coma

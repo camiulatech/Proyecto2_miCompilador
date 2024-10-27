@@ -9,50 +9,8 @@ d = f / i;
 ulate = 30 - p;
 e = -c;
 
-// Pruebas antiguas 
+print(coqui);
 
-a = 1;
+IF NO SIRVE
 
-print(a);
 
-if(cami = 2){  
-    print(cami); 
-}; // El profe no dice pero aqui creo que tambien hay que poner ; en todo caso es borrar dos lineas
-
-if(cami = 2){  
-    print(cami); 
-}
-else{
-    print(ulate);
-};
-
-while(x=2){ 
-    print(cami);
-};
-
-// si se acomoda asi da la linea de errores bien
-cami = 3;
-while(x=2){ print(cami); };
-x = ;
-
-cami = 3;
-if(cami = 3){ print(cami) };
-x = 5;
-
-if(x = 2){ print(cami); } else{ print(cami); };
-
-// PENDIENTES
-
-1. Arreglar tabla de Simbolos --- validar antes del identificador venga PUNTO COMA? CHECK
-2. ver lo error en la linea tal en fase sintactica (depende como se acomode)
-3. revisar archivo de tabla de simbolos 
-4. que pasa si dos identificadores se llaman igual
-5. error cuando el punto y coma es el ultimo es lo que falla al final, dice que se sale del limite cami = 3
-
-// NO ENTIENDO
-creo que lo del for esta malo pq no tenemos ni > ni < 
-
-// Factorizar
-if_stmt → if ( expresion ) { declaraciones } if_stmt´  
-
-if_stmt´ -> else{ declaraciones }; | cadena vacia

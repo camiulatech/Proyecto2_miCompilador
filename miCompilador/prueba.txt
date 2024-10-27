@@ -1,2 +1,2 @@
-ulate = 30 - p;
-e = -c;
+while(x = 2){ 
+    print(x); };
