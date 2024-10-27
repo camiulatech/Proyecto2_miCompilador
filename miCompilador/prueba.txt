@@ -1,2 +1,3 @@
-while(x = 2){ 
-    print(x); };
+while(cami = 2){
+    print(cami);
+};

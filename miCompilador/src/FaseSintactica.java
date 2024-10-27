@@ -71,7 +71,7 @@ public class FaseSintactica {
         } 
         else if(llave_der == true && tipoToken.equals("LLAVE_DER")){
             llave_der = false;
-            verificarPuntoComaDespuesDeLlave();
+            siguienteToken();
         }
         else {
             throw new Exception("PRUEBA Declaración no válida en la línea " + lineaActual);
@@ -318,14 +318,6 @@ public class FaseSintactica {
         }
     }
         */
-
-    private void verificarPuntoComaDespuesDeLlave() throws Exception {
-        if (indiceActual < tokens.size() && tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
-            siguienteToken(); // Toma ';' después del bloque
-        } else {
-            throw new Exception("Se esperaba ';' después del bloque en la línea " + lineaActual);            }
-        }
-        
 
     private void siguienteToken() {
         if (indiceActual < tokens.size()) {

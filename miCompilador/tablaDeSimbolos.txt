@@ -1,1 +1,7 @@
 Tabla de Simbolos:
+Identificador: a, Informacion: Linea: 1, Valor: 1
+Identificador: x, Informacion: Linea: 2, Valor: b
+Identificador: b, Informacion: Linea: 4, Valor: c * y
+Identificador: d, Informacion: Linea: 5, Valor: f / i
+Identificador: ulate, Informacion: Linea: 6, Valor: 30 - p
+Identificador: e, Informacion: Linea: 7, Valor: -c
