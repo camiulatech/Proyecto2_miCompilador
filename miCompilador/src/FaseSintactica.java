@@ -47,39 +47,28 @@ public class FaseSintactica {
 
     // programa -> declaración programa
     private void programa() throws Exception {
-        while (indiceActual < tokens.size()) {
-            lineaActual++;
-            declaracion();
-        }
+        declaraciones();
     }
 
-    // declaración -> identificador = numero ; | control_flujo | impresion ;
+    // declaración -> expresion | control_flujo | impresion
     private void declaracion() throws Exception {
-        if (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
-            siguienteToken(); // Toma el identificador
-            if (tokens.get(indiceActual).getTipo().equals("ASIGNACION")) {
-                siguienteToken(); // Toma el signo '='
-                if (tokens.get(indiceActual).getTipo().equals("NUMERO")) {
-                    siguienteToken(); // Toma el número
-                    if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
-                        siguienteToken(); // Toma ';'
-                    } else {
-                        throw new Exception(" se esperaba un punto y coma.");
-                    }
-                } else {
-                    throw new Exception(" se esperaba un número después de '='.");
-                }
-            } else if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
-                siguienteToken(); // Toma ';' sin asignación
-            } else {
-                throw new Exception(" se esperaba un operador de asignación o punto y coma.");
-            }
-        } else if (tokens.get(indiceActual).getTipo().equals("IF") || tokens.get(indiceActual).getTipo().equals("WHILE") || tokens.get(indiceActual).getTipo().equals("FOR")) {
-            control_flujo(); // Maneja control de flujo
-        } else if (tokens.get(indiceActual).getTipo().equals("PRINT")) {
-            impresion(); // Maneja impresión
-        } else {
-            throw new Exception(" declaración no válida.");
+        // Identificamos el tipo de declaración basado en el primer token
+        String tipoToken = tokens.get(indiceActual).getTipo();
+
+        if (tipoToken.equals("IDENTIFICADOR") || tipoToken.equals("NUMERO") || tipoToken.equals("PARENTESIS_ABIERTO") || tipoToken.equals("OP_MENOS")) {
+            // Si es un identificador, número, paréntesis o un operador menos, tratamos la declaración como una expresión
+            expresion();
+        } 
+        else if (tipoToken.equals("IF") || tipoToken.equals("WHILE") || tipoToken.equals("FOR")) {
+            // Control de flujo: if, while, o for
+            control_flujo();
+        } 
+        else if (tipoToken.equals("PRINT")) {
+            // Impresión: print
+            impresion();
+        } 
+        else {
+            throw new Exception("Declaración no válida en la línea " + lineaActual);
         }
     }
 
@@ -263,51 +252,56 @@ public class FaseSintactica {
         }
     }
 
-    // expresion -> identificador = numero | termino operador_aditivo termino
+    // Expresion -> identificador = expresion | identificador | numero | (expresion)
+    //              | expresion operador_aditivo expresion
+    //              | expresion operador_multiplicativo expresion
+    //              | expresion operador_relacional expresion
+    //              | - expresion
     private void expresion() throws Exception {
         if (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
             siguienteToken(); // Toma el identificador
-            if (tokens.get(indiceActual).getTipo().equals("ASIGNACION")) {
-                siguienteToken(); // Toma '='
-                if (tokens.get(indiceActual).getTipo().equals("NUMERO")) {
-                    siguienteToken(); // Toma el número
-                } else {
-                    throw new Exception(" se esperaba un número.");
-                }
+            if (indiceActual < tokens.size() && tokens.get(indiceActual).getTipo().equals("ASIGNACION")) {
+                siguienteToken(); // Toma el operador '='
+                expresion(); // Llama a expresion recursivamente para el lado derecho
             }
-        } else {
-            termino(); // Analiza término
-            operador_aditivo();
-            termino(); // Analiza término
-        }
-    }
-
-    // termino -> factor operador_multiplicativo factor
-    private void termino() throws Exception {
-        factor(); // Analiza factor
-        operador_multiplicativo();
-        factor(); // Analiza factor
-    }
-
-    // factor -> identificador | numero | ( expresion )
-    private void factor() throws Exception {
-        if (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR")) {
-            siguienteToken(); // Toma el identificador
-        } else if (tokens.get(indiceActual).getTipo().equals("NUMERO")) {
+        } 
+        else if (tokens.get(indiceActual).getTipo().equals("NUMERO")) {
             siguienteToken(); // Toma el número
-        } else if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_IZQ")) {
+        } 
+        else if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_ABIERTO")) {
             siguienteToken(); // Toma '('
-            expresion(); // Analiza expresión
-            if (tokens.get(indiceActual).getTipo().equals("PARENTESIS_DER")) {
+            expresion(); // Analiza la expresión dentro de los paréntesis
+            if (indiceActual < tokens.size() && tokens.get(indiceActual).getTipo().equals("PARENTESIS_CERRADO")) {
                 siguienteToken(); // Toma ')'
             } else {
-                throw new Exception(" se esperaba ')'.");
+                throw new Exception("Se esperaba un paréntesis cerrado en la línea " + lineaActual);
             }
-        } else {
-            throw new Exception(" factor no válido.");
+        } 
+        else if (tokens.get(indiceActual).getTipo().equals("RESTA")) { // Para -expresion
+            siguienteToken(); // Toma el operador '-'
+            expresion(); // Analiza la expresión después del operador unario
+        } 
+        else {
+            throw new Exception("Expresión no válida en la línea " + lineaActual);
+        }
+        
+        // Verifica si hay una operación binaria después de la primera parte de la expresión
+        if (indiceActual < tokens.size() && esOperadorBinario(tokens.get(indiceActual).getTipo())) {
+            siguienteToken(); // Toma el operador binario
+            expresion(); // Analiza la expresión del lado derecho
         }
     }
 
+    // Verifica si el token actual es un operador binario válido
+    private boolean esOperadorBinario(String tipoToken) {
+        return tipoToken.equals("SUMA") || tipoToken.equals("RESTA") || 
+            tipoToken.equals("DIVISION") || tipoToken.equals("MULTIPLICACION") ||
+            tipoToken.equals("MENOR_IGUAL") || tipoToken.equals("DIFERENTE") || 
+            tipoToken.equals("MENOR") || tipoToken.equals("MAYOR_IGUAL") || 
+            tipoToken.equals("MAYOR") || tipoToken.equals("IGUALDAD");
+    }
+
+    /* 
     // operador_aditivo -> + | -
     private void operador_aditivo() throws Exception {
         if (tokens.get(indiceActual).getTipo().equals("SUMA") || tokens.get(indiceActual).getTipo().equals("RESTA")) {
@@ -321,6 +315,7 @@ public class FaseSintactica {
             siguienteToken(); // Toma el operador
         }
     }
+        */
 
     private void siguienteToken() {
         if (indiceActual < tokens.size()) {
@@ -328,16 +323,26 @@ public class FaseSintactica {
         }
     }
 
+    // declaraciones -> declaración ; declaraciones | ε
     private void declaraciones() throws Exception {
-        while (indiceActual < tokens.size() && 
-               (tokens.get(indiceActual).getTipo().equals("IDENTIFICADOR") ||
-                tokens.get(indiceActual).getTipo().equals("PRINT") ||
-                tokens.get(indiceActual).getTipo().equals("IF") ||
-                tokens.get(indiceActual).getTipo().equals("WHILE") ||
-                tokens.get(indiceActual).getTipo().equals("FOR"))) {
-            declaracion(); // Llama a declaración para manejar múltiples declaraciones
+        // Mientras haya tokens, intenta analizar declaraciones
+        while (indiceActual < tokens.size()) {
+            declaracion(); // Analiza la declaración actual
+            
+            System.out.println(tokens.get(indiceActual).getTipo());
+            // Después de cada declaración, se espera un punto y coma
+            if (tokens.get(indiceActual).getTipo().equals("PUNTO_COMA")) {
+                siguienteToken(); // Toma el punto y coma
+                lineaActual++;
+            } else {
+                throw new Exception(" DECLRACIONES se esperaba un punto y coma después de la declaración.");
+            }
+            
+            // Llamada recursiva para seguir analizando más declaraciones
+            // Si no hay más declaraciones, se manejará la producción ε y terminará
         }
     }
+
 
     private void eliminarErroresTablaSimbolos(String archivoTablaSimbolos) throws IOException {
         List<String> lineasValidas = new ArrayList<>();

@@ -1,1 +1,3 @@
 Tabla de Simbolos:
+Identificador: ulate, Informacion: Linea: 1, Valor: 30 - p
+Identificador: e, Informacion: Linea: 2, Valor: -c

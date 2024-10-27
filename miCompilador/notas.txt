@@ -1,4 +1,15 @@
-// Pruebas que funcionan
+// Pruebas que funcionan L2 Corregida
+
+// pruebas de la nueva funcion expresion
+a = 1;
+x = b;
+a = cami + 2;
+b = c * y;
+d = f / i;
+ulate = 30 - p;
+e = -c;
+
+// Pruebas antiguas 
 
 a = 1;
 
